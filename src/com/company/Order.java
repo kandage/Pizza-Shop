@@ -26,10 +26,6 @@ public class Order implements OrderStatusObserver {
         return pizzas;
     }
 
-    public void setPizzas(List<Pizza> pizzas) {
-        this.pizzas = pizzas;
-    }
-
     public void provideFeedback(double rating, String feedback) {
         this.rating = rating;
         this.feedback = feedback;
@@ -67,8 +63,11 @@ public class Order implements OrderStatusObserver {
         return state.getStatus();
     }
 
-    public String getInvoice() {
-        double total = 0.0;
+    public String getInvoice(double totalDiscountPercentage, int quantity) {
+        double baseTotal = 2500.00 * quantity;
+        double discountAmount = baseTotal * (totalDiscountPercentage / 100.0);
+        double finalTotal = baseTotal - discountAmount;
+
         StringBuilder invoice = new StringBuilder();
         invoice.append("\n======================== INVOICE ========================\n");
         invoice.append("Order ID: ").append(orderId).append("\n");
@@ -76,16 +75,24 @@ public class Order implements OrderStatusObserver {
         invoice.append("---------------------------------------------------------\n");
         for (Pizza pizza : pizzas) {
             invoice.append(pizza.getDetails()).append("\n");
-            total += 2500.00 * pizza.getQuantity();
         }
         invoice.append("---------------------------------------------------------\n");
-        invoice.append("Total Price: Rs").append(String.format("%.2f", total)).append("\n");
+        invoice.append("Base Total Price: Rs").append(String.format("%.2f", baseTotal)).append("\n");
+        invoice.append("Discount Applied: Rs").append(String.format("%.2f", discountAmount)).append(" (").append(totalDiscountPercentage).append("%)\n");
+        invoice.append("Final Total Price: Rs").append(String.format("%.2f", finalTotal)).append("\n");
         invoice.append("=========================================================\n");
         return invoice.toString();
     }
 
     @Override
     public void update(String status) {
-
+        switch (status.toLowerCase()) {
+            case "placed" -> setState(new PlacedState());
+            case "preparing" -> setState(new PreparingState());
+            case "out for delivery" -> setState(new OutForDeliveryState());
+            case "delivered" -> setState(new DeliveredState());
+            default -> System.out.println("Unknown status update: " + status);
+        }
+        System.out.println("Order ID " + orderId + " status updated to: " + state.getStatus());
     }
 }
