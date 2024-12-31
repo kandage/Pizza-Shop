@@ -1,5 +1,9 @@
 package com.company;
 
+/**
+ * author k2425199
+ */
+
 public abstract class OrderHandler {
     protected OrderHandler nextHandler;
 

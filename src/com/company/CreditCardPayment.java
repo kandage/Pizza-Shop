@@ -1,5 +1,9 @@
 package com.company;
 
+/**
+ * author k2425199
+ */
+
 public class CreditCardPayment implements PaymentStrategy {
     @Override
     public void pay(double amount) {
